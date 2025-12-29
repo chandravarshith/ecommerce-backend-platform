@@ -1,5 +1,7 @@
 package org.example.productcatelogservice.models;
 
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -15,5 +17,7 @@ public abstract class BaseClass {
     private Long id;
     private Date creationAt;
     private Date lastUpdateAt;
+
+    @Enumerated(value = EnumType.STRING)
     private State state;
 }

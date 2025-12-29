@@ -20,7 +20,7 @@ import java.util.List;
 public class ProductController {
 
     @Autowired
-    @Qualifier("fakeStoreProductService")
+//    @Qualifier("fakeStoreProductService")
     private IProductService productService;
 
     @GetMapping("/products/{id}")
@@ -77,6 +77,7 @@ public class ProductController {
         productDto.setDescription(product.getDescription());
         productDto.setImageUrl(product.getImageUrl());
         productDto.setPrice(product.getPrice());
+        productDto.setIsPrime(product.getIsPrime());
 
         if(product.getCategory() != null) {
             CategoryDto categoryDto = new CategoryDto();
@@ -95,6 +96,8 @@ public class ProductController {
         product.setDescription(productDto.getDescription());
         product.setPrice(productDto.getPrice());
         product.setImageUrl(productDto.getImageUrl());
+        product.setIsPrime(productDto.getIsPrime());
+
         if(productDto.getCategoryDto()!=null){
             Category category = new Category();
             category.setId(productDto.getCategoryDto().getId());
