@@ -3,6 +3,7 @@ package org.example.productcatelogservice.clients;
 import org.example.productcatelogservice.dtos.FakeStoreProductDto;
 import org.example.productcatelogservice.utils.RestTemplateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +15,12 @@ import java.util.List;
 @Component
 public class FakeStoreApiClient {
 
-    @Autowired
     private RestTemplateUtil restTemplateUtil;
+
+    @Autowired
+    public FakeStoreApiClient(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplateUtil = new RestTemplateUtil(restTemplateBuilder.build());
+    }
 
     public FakeStoreProductDto getFakeStoreProductById(Long id){
         if (id > 20) {

@@ -1,10 +1,13 @@
 package org.example.userauthenticationservice.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.MacAlgorithm;
 import org.antlr.v4.runtime.misc.Pair;
+import org.example.userauthenticationservice.clients.KafkaProducerClient;
+import org.example.userauthenticationservice.dtos.EmailDto;
 import org.example.userauthenticationservice.exceptions.InvalidPasswordException;
 import org.example.userauthenticationservice.exceptions.UserExistException;
 import org.example.userauthenticationservice.exceptions.UserNotRegisteredException;
@@ -14,6 +17,7 @@ import org.example.userauthenticationservice.models.User;
 import org.example.userauthenticationservice.repositories.SessionRepository;
 import org.example.userauthenticationservice.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +42,17 @@ public class AuthService implements IAuthService {
     @Autowired
     private SecretKey secretKey;
 
+    @Autowired
+    private KafkaProducerClient kafkaProducerClient;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Value("${email.username}")
+    private String senderUsername;
+
+    private final String signupTopic = "SIGNUP";
+
     @Override
     public User signup(String email,  String password, String name, String phoneNumber) {
         Optional<User> userOptional = userRepository.findByEmail(email);
@@ -49,6 +64,20 @@ public class AuthService implements IAuthService {
         user.setPassword(passwordEncoder.encode(password));
         user.setName(name);
         user.setPhoneNumber(phoneNumber);
+
+        try{
+            EmailDto emailDto = new EmailDto();
+            emailDto.setSender(senderUsername);
+            emailDto.setRecipient(email);
+            emailDto.setSubject("Welcome to Product Catalog System!");
+            emailDto.setMessage("Thank you for successfully registering with us." +
+                    " Have a pleasant stay!");
+            this.kafkaProducerClient.sendMessage(signupTopic,
+                    this.objectMapper.writeValueAsString(emailDto));
+        }catch (JsonProcessingException ex){
+            throw new RuntimeException(ex.getMessage());
+        }
+
         return userRepository.save(user);
     }
 

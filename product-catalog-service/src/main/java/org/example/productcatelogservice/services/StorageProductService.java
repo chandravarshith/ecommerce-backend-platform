@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,11 +19,15 @@ import java.util.Optional;
 //@Primary
 public class StorageProductService implements IProductService {
 
-    @Autowired
     private ProductRepository productRepository;
 
-    @Autowired
     private RestTemplateUtil restTemplateUtil;
+
+    @Autowired
+    public StorageProductService(ProductRepository productRepository, RestTemplate restTemplate) {
+        this.productRepository = productRepository;
+        this.restTemplateUtil = new RestTemplateUtil(restTemplate);
+    }
 
     @Override
     public Product getProductById(Long id) {
